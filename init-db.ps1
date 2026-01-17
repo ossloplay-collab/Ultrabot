@@ -2,7 +2,7 @@
 # Ultrabot Database Initialization Script for Windows PowerShell
 # Creates all necessary tables and views in PostgreSQL
 
-Write-Host "🚀 Ultrabot Database Initialization Script" -ForegroundColor Cyan
+Write-Host "[START] Ultrabot Database Initialization Script" -ForegroundColor Cyan
 Write-Host "=========================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -10,11 +10,11 @@ Write-Host ""
 Write-Host "Checking Docker status..." -ForegroundColor Yellow
 $dockerStatus = docker info 2>&1
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "❌ Docker is not running!" -ForegroundColor Red
+    Write-Host "[ERROR] Docker is not running!" -ForegroundColor Red
     Write-Host "Please start Docker Desktop first." -ForegroundColor Yellow
     exit 1
 }
-Write-Host "✅ Docker is running" -ForegroundColor Green
+Write-Host "[OK] Docker is running" -ForegroundColor Green
 Write-Host ""
 
 # Check if containers are running
@@ -23,12 +23,12 @@ $containers = docker-compose ps --format json 2>&1 | ConvertFrom-Json
 $postgresRunning = $containers | Where-Object { $_.Name -like "*postgres*" -and $_.State -eq "running" }
 
 if (-not $postgresRunning) {
-    Write-Host "❌ PostgreSQL container is not running!" -ForegroundColor Red
+    Write-Host "[ERROR] PostgreSQL container is not running!" -ForegroundColor Red
     Write-Host "Starting containers..." -ForegroundColor Yellow
     docker-compose up -d postgres
     Start-Sleep -Seconds 5
 }
-Write-Host "✅ PostgreSQL is ready" -ForegroundColor Green
+Write-Host "[OK] PostgreSQL is ready" -ForegroundColor Green
 Write-Host ""
 
 # Create tables
@@ -146,10 +146,10 @@ foreach ($statement in $sqlStatements) {
     try {
         Write-Host "Executing SQL statement..." -ForegroundColor Gray
         $statement | docker-compose exec -T postgres psql -U ultrabot -d ultrabot | Out-Null
-        Write-Host "✅ OK" -ForegroundColor Green
+        Write-Host "[OK]" -ForegroundColor Green
     }
     catch {
-        Write-Host "⚠️  Warning: $_" -ForegroundColor Yellow
+        Write-Host "[WARN] $_" -ForegroundColor Yellow
     }
 }
 
@@ -216,10 +216,10 @@ foreach ($view in $views) {
     try {
         Write-Host "Creating view..." -ForegroundColor Gray
         $view | docker-compose exec -T postgres psql -U ultrabot -d ultrabot | Out-Null
-        Write-Host "✅ OK" -ForegroundColor Green
+        Write-Host "[OK]" -ForegroundColor Green
     }
     catch {
-        Write-Host "⚠️  Warning: $_" -ForegroundColor Yellow
+        Write-Host "[WARN] $_" -ForegroundColor Yellow
     }
 }
 
@@ -233,11 +233,11 @@ Write-Host $tableList -ForegroundColor Cyan
 Write-Host ""
 
 Write-Host "=========================================" -ForegroundColor Cyan
-Write-Host "✅ Database initialization complete!" -ForegroundColor Green
+Write-Host "[DONE] Database initialization complete!" -ForegroundColor Green
 Write-Host ""
 Write-Host "Summary:" -ForegroundColor Cyan
-Write-Host "  📊 Tables: feeds, news_items, publications, metrics_logs, deduplication_cache" -ForegroundColor White
-Write-Host "  👁️  Views: published_news_summary, pending_publications, feed_statistics" -ForegroundColor White
+Write-Host "  [TABLES] feeds, news_items, publications, metrics_logs, deduplication_cache" -ForegroundColor White
+Write-Host "  [VIEWS] published_news_summary, pending_publications, feed_statistics" -ForegroundColor White
 Write-Host ""
 Write-Host "Next steps:" -ForegroundColor Cyan
 Write-Host "  1. Add RSS feeds to database:" -ForegroundColor White

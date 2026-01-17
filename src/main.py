@@ -68,6 +68,7 @@ class Application:
         self.translator: Optional[YandexTranslatorAdapter] = None
         self.telegram_client: Optional[TelegramClientAdapter] = None
         self.telegram_bot: Optional[TelegramBot] = None
+        self.feed_processing_task: Optional[asyncio.Task] = None
 
         # Setup shutdown hooks
         self.app.add_event_handler("shutdown", self.shutdown)
@@ -126,6 +127,10 @@ class Application:
             import time
             SYSTEM_UPTIME.set_to_current_time()
 
+            # Start background feed processing task
+            self.feed_processing_task = asyncio.create_task(self._feed_processing_loop())
+            logger.info("Feed processing background task started")
+
             logger.info("✅ Application started successfully")
 
         except Exception as e:
@@ -137,6 +142,14 @@ class Application:
         logger.info("Shutting down application...")
 
         try:
+            # Cancel feed processing task
+            if self.feed_processing_task and not self.feed_processing_task.done():
+                self.feed_processing_task.cancel()
+                try:
+                    await self.feed_processing_task
+                except asyncio.CancelledError:
+                    logger.info("Feed processing task cancelled")
+
             # Close database
             if self.db_engine:
                 self.db_engine.dispose()
@@ -161,6 +174,36 @@ class Application:
 
         except Exception as e:
             logger.error(f"Error during shutdown: {e}")
+
+    async def _feed_processing_loop(self) -> None:
+        """Background task for processing RSS feeds periodically."""
+        import time
+        
+        logger.info(f"Starting feed processing loop (interval: {self.settings.rss_check_interval}s)")
+        
+        try:
+            while True:
+                try:
+                    logger.info("Starting RSS feed collection cycle...")
+                    start_time = time.time()
+                    
+                    # TODO: Implement actual feed processing
+                    # This would call ProcessFeedsUseCase to collect and process feeds
+                    # For now, just log that we're checking
+                    logger.info("RSS feed collection cycle completed (no feeds processed yet - implementation pending)")
+                    
+                    duration = time.time() - start_time
+                    logger.info(f"Feed processing cycle took {duration:.2f}s")
+                    
+                except Exception as e:
+                    logger.error(f"Error in feed processing cycle: {e}", exc_info=True)
+                
+                # Wait for next cycle
+                await asyncio.sleep(self.settings.rss_check_interval)
+                
+        except asyncio.CancelledError:
+            logger.info("Feed processing loop cancelled")
+            raise
 
     async def run(self) -> None:
         """Run the application."""

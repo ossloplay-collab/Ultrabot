@@ -240,8 +240,13 @@ class Application:
 
 async def main() -> None:
     """Application entry point."""
-    app = Application()
-    await app.run()
+    app_instance = Application()
+    await app_instance.run()
+
+
+# Create app instance for uvicorn
+_app_instance = Application()
+app = _app_instance.app
 
 
 if __name__ == "__main__":

@@ -63,3 +63,23 @@ make run-dev
 ```
 
 **Done!** 🎉 App running at `http://localhost:8000`
+
+---
+
+## 📊 Check System Status
+
+To view the current system state (RSS feeds, news statistics, database info):
+
+```bash
+# Quick status check
+make status
+
+# Or detailed pytest output
+make test-global
+
+# Or direct Python
+python check_status.py
+```
+
+See [GLOBAL_TEST.md](GLOBAL_TEST.md) for detailed information about available metrics.
+**Done!** 🎉 App running at `http://localhost:8000`

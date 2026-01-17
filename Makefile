@@ -51,6 +51,12 @@ test-integration: ## Run integration tests
 test-e2e: ## Run E2E tests
 	$(PYTHON) -m pytest tests/e2e/ -v
 
+test-global: ## Run global status test (shows feeds, news stats, DB info)
+	$(PYTHON) -m pytest tests/test_global_status.py -v -s
+
+status: ## Check system status (RSS feeds, news, database)
+	$(PYTHON) check_status.py
+
 lint: ## Run all linters
 	@echo "Running black..."
 	$(PYTHON) -m black --check .

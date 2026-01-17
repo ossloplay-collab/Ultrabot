@@ -131,27 +131,35 @@ class Settings(BaseSettings):
 
     @field_validator("allowed_hosts", mode="before")
     @classmethod
-    def parse_allowed_hosts(cls, v: str | list[str] | None) -> list[str]:
+    def parse_allowed_hosts(cls, v) -> list[str]:
         """Parse allowed_hosts from string or list."""
-        if not v:
+        # Handle None, empty, or missing values
+        if v is None or v == "":
             return ["localhost", "127.0.0.1"]
         if isinstance(v, str):
             if not v.strip():
                 return ["localhost", "127.0.0.1"]
+            # Skip JSON parsing, just split by comma
             return [host.strip() for host in v.split(",") if host.strip()]
-        return v
+        if isinstance(v, list):
+            return [h for h in v if h]
+        return ["localhost", "127.0.0.1"]
 
     @field_validator("cors_origins", mode="before")
     @classmethod
-    def parse_cors_origins(cls, v: str | list[str] | None) -> list[str]:
+    def parse_cors_origins(cls, v) -> list[str]:
         """Parse CORS origins from string or list."""
-        if not v:
+        # Handle None, empty, or missing values
+        if v is None or v == "":
             return []
         if isinstance(v, str):
             if not v.strip():
                 return []
+            # Skip JSON parsing, just split by comma
             return [origin.strip() for origin in v.split(",") if origin.strip()]
-        return v
+        if isinstance(v, list):
+            return [o for o in v if o]
+        return []
 
 
 def get_settings() -> Settings:
